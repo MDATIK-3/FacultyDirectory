@@ -1,0 +1,8 @@
+.faculty-images {
+  box-sizing: border-box;
+  overflow: hidden !important;
+}
+
+.faculty-images img {
+  width: 100%;
+}
