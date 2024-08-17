@@ -9,7 +9,7 @@ const SearchBar = ({ query, handleSearch }) => {
         placeholder="Search by name or code"
         value={query}
         onChange={handleSearch}
-        className="w-full pl-12 pr-4 py-2 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-gray-100 transition duration-300 shadow-sm hover:shadow-lg search-input"
+        className="w-full pl-12 pr-4 py-2 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-gray-800 transition duration-300 shadow-sm hover:shadow-lg search-input"
         whileFocus={{ scale: 1.05, boxShadow: "0 8px 15px rgba(0, 0, 0, 0.2)" }}
         whileHover={{ scale: 1.03, boxShadow: "0 4px 10px rgba(0, 0, 0, 0.1)" }}
       />
