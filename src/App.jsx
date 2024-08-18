@@ -19,14 +19,14 @@ function App() {
 
     const handleMediaChange = (e) => {
       if (e.matches) {
-        setItemsPerPage(15); 
+        setItemsPerPage(15);
       } else {
         setItemsPerPage(16);
       }
     };
 
     handleMediaChange(mediaQuery);
-    mediaQuery.addListener(handleMediaChange); 
+    mediaQuery.addListener(handleMediaChange);
 
     return () => {
       mediaQuery.removeListener(handleMediaChange);
@@ -72,14 +72,13 @@ function App() {
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row justify-between items-center  mb-8">
             <h1
-              className={`text-3xl font-bold collaborate-button ${
-                darkMode ? "collaborate-button2" : "collaborate-button1"
-              } mb-4 md:mb-0`}
+              className={`text-3xl font-bold collaborate-button ${darkMode ? "collaborate-button2" : "collaborate-button1"
+                } mb-4 md:mb-0`}
             >
               Faculty Directory
             </h1>
             <div className="flex items-center  sm:w-full md:w-auto  ">
-              <SearchBar query={query} handleSearch={handleSearch} />
+              <SearchBar query={query} handleSearch={handleSearch} darkMode={darkMode} />
 
               <motion.button
                 onClick={handleToggleDarkMode}
@@ -119,11 +118,10 @@ function App() {
               <motion.button
                 key={index}
                 onClick={() => setCurrentPage(index + 1)}
-                className={`px-4 py-2 rounded-lg transition duration-300 shadow-md ${
-                  currentPage === index + 1
-                    ? "bg-custom text-white"
-                    : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
-                }`}
+                className={`px-4 py-2 rounded-lg transition duration-300 shadow-md ${currentPage === index + 1
+                  ? "bg-custom text-white"
+                  : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                  }`}
                 whileTap={{ scale: 0.9 }}
               >
                 {index + 1}
