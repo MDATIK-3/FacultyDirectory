@@ -31,7 +31,7 @@ const SearchBar = ({ query, handleSearch, darkMode }) => {
           darkMode
             ? isLargeScreen
               ? "dark:bg-gray-800 dark:text-gray-800 focus:ring-blue-500"
-              : "dark:bg-gray-800 dark:text-gray-100 focus:ring-blue-500"
+              : "dark:bg-gray-800 dark:text-gray-800 focus:ring-blue-500"
             : "bg-white text-gray-800 focus:ring-blue-500"
         } transition duration-300 shadow-sm hover:shadow-lg search-input`}
         whileFocus={{ scale: 1.05, boxShadow: "0 8px 15px rgba(0, 0, 0, 0.2)" }}
