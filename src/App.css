@@ -6,9 +6,11 @@
 .faculty-images img {
   width: 100%;
 }
+
 .bg-custom {
   background-color: rgb(255, 89, 33);
 }
+
 .collaborate-button {
   position: relative;
   background-size: 400% 100%;
@@ -17,9 +19,11 @@
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
+
 .collaborate-button1 {
   background-image: linear-gradient(-90deg, #005db7, #005353, #57042e, #00417d);
 }
+
 .collaborate-button2 {
   background-image: linear-gradient(-90deg, #007cf0, #00dfd8, #ff0080, #007cf0);
 }
@@ -28,14 +32,16 @@
   0% {
     background-position: 0% 50%;
   }
+
   50% {
     background-position: 100% 50%;
   }
+
   100% {
     background-position: 0% 50%;
   }
 }
-/* input and search icon */
+/* Input and search icon */
 .search-input {
   position: relative;
   border: 2px solid transparent;
@@ -63,13 +69,11 @@
   }
 
   .search-icon {
-    background-image: linear-gradient(
-      -90deg,
-      #007cf0,
-      #00dfd8,
-      #ff0080,
-      #007cf0
-    );
+    background-image: linear-gradient(-90deg,
+        #007cf0,
+        #00dfd8,
+        #ff0080,
+        #007cf0);
   }
 }
 
@@ -77,14 +81,17 @@
   0% {
     background-position: 0% 50%, 0% 50%;
   }
+
   50% {
     background-position: 100% 50%, 100% 50%;
   }
+
   100% {
     background-position: 0% 50%, 0% 50%;
   }
 }
 
+/* Highlighter button */
 .highlighter-button {
   position: relative;
   border: 2px solid transparent;
@@ -107,9 +114,11 @@
   0% {
     background-position: 0% 50%, 0% 50%;
   }
+
   50% {
     background-position: 100% 50%, 100% 50%;
   }
+
   100% {
     background-position: 0% 50%, 0% 50%;
   }
