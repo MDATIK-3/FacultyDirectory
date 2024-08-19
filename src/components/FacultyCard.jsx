@@ -68,7 +68,7 @@ const FacultyCard = ({ name, designation, contactNo, email, code, imgSrc, query 
         transition={{ duration: 0.5, delay: 0.5 }}
       >
         <BsTelephone className="mr-2" />
-        <p className="truncate">{contactNo}</p>
+        <a href={`tel:${contactNo}`} className="truncate">{contactNo}</a>
       </motion.div>
       <motion.div
         className="flex items-center text-blue-600 dark:text-blue-400"

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import facultyData from "./data/faculty.js";
 import FacultyCard from "./components/FacultyCard";
 import Fuse from "fuse.js";
-import { BsMoon, BsSun, BsSearch } from "react-icons/bs";
+import { BsMoon, BsSun } from "react-icons/bs";
 import { motion } from "framer-motion";
 import SearchBar from "./components/SearchBar";
 import Footer from "./components/Footer.jsx";
@@ -41,6 +41,7 @@ function App() {
   const results = query
     ? fuse.search(query).map(({ item }) => item)
     : facultyData;
+
   const totalItems = results.length;
   const totalPages = Math.ceil(totalItems / itemsPerPage);
   const paginatedData = results.slice(
