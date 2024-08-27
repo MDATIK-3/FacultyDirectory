@@ -650,12 +650,12 @@ const facultyData = [
   },
   {
     "id": 73,
-    "name": "Mahjabin Rahman Oishe",
-    "designation": "Lecturer",
-    "code": "MRO",
-    "contactNo": "to be added soon",
-    "email": "oishe@cse.green.edu.bd",
-    "imgSrc": "./images/MRO.jpg"
+    "name": "Md. Monirul Islam",
+    "designation": "Assistant Professor",
+    "code": "MI",
+    "contactNo": "01731666995",
+    "email": "to be added soon",
+    "imgSrc": "./images/MI.jpg"
   }
 ]
 
