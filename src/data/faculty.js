@@ -638,6 +638,24 @@ const facultyData = [
     "contactNo": "01954458244",
     "email": "emad@cse.green.edu.bd",
     "imgSrc": "./images/KHE.png"
+  },
+  {
+    "id": 72,
+    "name": "Mahjabin Rahman Oishe",
+    "designation": "Lecturer",
+    "code": "MRO",
+    "contactNo": "to be added soon",
+    "email": "oishe@cse.green.edu.bd",
+    "imgSrc": "./images/MRO.jpg"
+  },
+  {
+    "id": 73,
+    "name": "Mahjabin Rahman Oishe",
+    "designation": "Lecturer",
+    "code": "MRO",
+    "contactNo": "to be added soon",
+    "email": "oishe@cse.green.edu.bd",
+    "imgSrc": "./images/MRO.jpg"
   }
 ]
 
