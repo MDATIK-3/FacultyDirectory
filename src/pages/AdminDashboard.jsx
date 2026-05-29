@@ -93,7 +93,6 @@ export default function AdminDashboard() {
   }
 
   const processFile = useCallback((file) => {
-    if (!file.type.startsWith('image/')) return
     setImageFile(file)
     setImagePreview(URL.createObjectURL(file))
   }, [])
