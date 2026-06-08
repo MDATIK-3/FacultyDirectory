@@ -30,11 +30,32 @@ function payloadEntries(payload) {
   return Object.entries(payload).filter(([key, value]) => !HIDDEN_FIELDS.includes(key) && value)
 }
 
+function dismissedStorageKey(userId) {
+  return `dismissed_change_requests_${userId}`
+}
+
+function loadDismissedIds(userId) {
+  try {
+    return new Set(JSON.parse(localStorage.getItem(dismissedStorageKey(userId)) ?? '[]'))
+  } catch {
+    return new Set()
+  }
+}
+
 export default function ChangeRequestsPanel({ role, session, refreshKey, onApplied }) {
   const [requests, setRequests] = useState([])
   const [loading, setLoading] = useState(true)
   const [actingId, setActingId] = useState(null)
+  const [dismissedIds, setDismissedIds] = useState(() => loadDismissedIds(session.user.id))
   const isSuperadmin = role === 'superadmin'
+
+  function handleDismiss(id) {
+    setDismissedIds((prev) => {
+      const next = new Set(prev).add(id)
+      localStorage.setItem(dismissedStorageKey(session.user.id), JSON.stringify([...next]))
+      return next
+    })
+  }
 
   const fetchRequests = useCallback(async () => {
     setLoading(true)
@@ -99,6 +120,8 @@ export default function ChangeRequestsPanel({ role, session, refreshKey, onAppli
 
   if (!role || loading) return null
 
+  const visibleRequests = isSuperadmin ? requests : requests.filter((r) => !dismissedIds.has(r.id))
+
   return (
     <section className="bg-white rounded-2xl border border-gray-200 shadow-sm p-5 sm:p-8">
       <div className="flex items-center justify-between gap-3 mb-5">
@@ -112,13 +135,13 @@ export default function ChangeRequestsPanel({ role, session, refreshKey, onAppli
         )}
       </div>
 
-      {requests.length === 0 ? (
+      {visibleRequests.length === 0 ? (
         <p className="text-sm text-gray-400">
           {isSuperadmin ? 'No pending changes to review.' : "You haven't submitted any changes yet."}
         </p>
       ) : (
         <ul className="space-y-3">
-          {requests.map((request) => (
+          {visibleRequests.map((request) => (
             <li key={request.id} className="border border-gray-200 rounded-xl p-4">
               <div className="flex flex-wrap items-start justify-between gap-2 mb-2">
                 <div className="min-w-0">
@@ -154,6 +177,16 @@ export default function ChangeRequestsPanel({ role, session, refreshKey, onAppli
                       Reject
                     </button>
                   </div>
+                )}
+                {!isSuperadmin && request.status !== 'pending' && (
+                  <button
+                    type="button"
+                    onClick={() => handleDismiss(request.id)}
+                    title="Remove from this list"
+                    className="flex-shrink-0 w-6 h-6 flex items-center justify-center rounded-full text-gray-400 hover:text-gray-600 hover:bg-gray-100 text-lg leading-none transition-colors"
+                  >
+                    ×
+                  </button>
                 )}
               </div>
 
