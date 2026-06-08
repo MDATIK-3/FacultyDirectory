@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { supabase } from '../supabaseClient'
 import { BsSearch } from 'react-icons/bs'
 import DEPARTMENTS from '../constants/departments'
+import ChangeRequestsPanel from '../components/ChangeRequestsPanel'
 
 const STATUS_STYLES = {
   active: 'bg-green-100 text-green-700 ring-1 ring-inset ring-green-200',
@@ -44,7 +45,7 @@ async function uploadImage(file) {
   return data.publicUrl
 }
 
-export default function AdminDashboard() {
+export default function AdminDashboard({ session }) {
   const [faculty, setFaculty] = useState([])
   const [form, setForm] = useState(EMPTY_FORM)
   const [editingId, setEditingId] = useState(null)
@@ -55,12 +56,35 @@ export default function AdminDashboard() {
   const [fetchError, setFetchError] = useState(null)
   const [listQuery, setListQuery] = useState('')
   const [deptFilter, setDeptFilter] = useState(null)
+  const [role, setRole] = useState(null)
+  const [requestsVersion, setRequestsVersion] = useState(0)
   const fileInputRef = useRef(null)
   const deptScrollRef = useRef(null)
+
+  const isSuperadmin = role === 'superadmin'
 
   useEffect(() => {
     fetchFaculty()
   }, [])
+
+  useEffect(() => {
+    let cancelled = false
+    supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', session.user.id)
+      .single()
+      .then(({ data }) => {
+        if (!cancelled) setRole(data?.role ?? 'admin')
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [session.user.id])
+
+  function refreshRequests() {
+    setRequestsVersion((v) => v + 1)
+  }
 
   useEffect(() => {
     const el = deptScrollRef.current
@@ -131,6 +155,19 @@ export default function AdminDashboard() {
     if (fileInputRef.current) fileInputRef.current.value = ''
   }
 
+  async function submitChangeRequest(action, targetId, payload) {
+    await supabase.from('faculty_change_requests').insert([
+      {
+        action,
+        target_id: targetId,
+        payload,
+        requested_by: session.user.id,
+        requested_by_email: session.user.email,
+      },
+    ])
+    refreshRequests()
+  }
+
   async function handleSubmit(e) {
     e.preventDefault()
     setSubmitting(true)
@@ -140,17 +177,22 @@ export default function AdminDashboard() {
         finalImgSrc = await uploadImage(imageFile)
       }
       const payload = { ...form, img_src: finalImgSrc }
-      if (editingId) {
-        await supabase.from('faculty_members').update(payload).eq('id', editingId)
-        setEditingId(null)
+      if (isSuperadmin) {
+        if (editingId) {
+          await supabase.from('faculty_members').update(payload).eq('id', editingId)
+        } else {
+          await supabase.from('faculty_members').insert([payload])
+        }
+        await fetchFaculty()
       } else {
-        await supabase.from('faculty_members').insert([payload])
+        await submitChangeRequest(editingId ? 'update' : 'insert', editingId, payload)
+        window.alert('Submitted — waiting for superadmin approval. The change will not appear on the public site until approved.')
       }
+      setEditingId(null)
       setForm(EMPTY_FORM)
       setImageFile(null)
       setImagePreview(null)
       if (fileInputRef.current) fileInputRef.current.value = ''
-      await fetchFaculty()
     } finally {
       setSubmitting(false)
     }
@@ -183,9 +225,16 @@ export default function AdminDashboard() {
   }
 
   async function handleDelete(id, name) {
-    if (!window.confirm(`Delete "${name}"?\n\nThis action cannot be undone.`)) return
-    await supabase.from('faculty_members').delete().eq('id', id)
-    await fetchFaculty()
+    if (isSuperadmin) {
+      if (!window.confirm(`Delete "${name}"?\n\nThis action cannot be undone.`)) return
+      await supabase.from('faculty_members').delete().eq('id', id)
+      await fetchFaculty()
+    } else {
+      if (!window.confirm(`Submit deletion of "${name}" for superadmin approval?`)) return
+      const member = faculty.find((m) => m.id === id) ?? null
+      await submitChangeRequest('delete', id, member)
+      window.alert('Submitted — waiting for superadmin approval. The member will remain visible until approved.')
+    }
   }
 
   async function handleLogout() {
@@ -222,9 +271,16 @@ export default function AdminDashboard() {
 
       <main className="max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-6 sm:space-y-8">
         <section className="bg-white rounded-2xl border border-gray-200 shadow-sm p-5 sm:p-8">
-          <h2 className="text-base font-semibold text-gray-900 mb-5 sm:mb-6">
-            {editingId ? 'Edit Faculty Member' : 'Add New Faculty Member'}
-          </h2>
+          <div className="mb-5 sm:mb-6">
+            <h2 className="text-base font-semibold text-gray-900">
+              {editingId ? 'Edit Faculty Member' : 'Add New Faculty Member'}
+            </h2>
+            {!isSuperadmin && role && (
+              <p className="text-xs text-amber-600 bg-amber-50 border border-amber-100 rounded-lg px-3 py-2 mt-2">
+                Your changes are submitted to a superadmin for approval and won&apos;t appear on the public site until accepted.
+              </p>
+            )}
+          </div>
           <form onSubmit={handleSubmit}>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
               <div>
@@ -247,7 +303,7 @@ export default function AdminDashboard() {
                   required
                   className={INPUT_CLASS + ' bg-white'}
                 >
-                  <option value="" disabled>
+                  <option value="" disabled className="text-gray-400">
                     Select a department
                   </option>
                   {DEPARTMENTS.map((dept) => (
@@ -383,7 +439,13 @@ export default function AdminDashboard() {
                 disabled={submitting}
                 className="bg-green-700 hover:bg-green-800 disabled:opacity-60 text-white text-sm font-semibold px-5 sm:px-6 py-2.5 rounded-lg transition-colors"
               >
-                {submitting ? 'Saving…' : editingId ? 'Update Member' : 'Add Member'}
+                {submitting
+                  ? 'Saving…'
+                  : isSuperadmin
+                  ? editingId
+                    ? 'Update Member'
+                    : 'Add Member'
+                  : 'Submit for Approval'}
               </button>
               {editingId && (
                 <button
@@ -397,6 +459,8 @@ export default function AdminDashboard() {
             </div>
           </form>
         </section>
+
+        <ChangeRequestsPanel role={role} session={session} refreshKey={requestsVersion} onApplied={fetchFaculty} />
 
         <section className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
           <div className="px-4 sm:px-6 py-4 border-b border-gray-100 flex flex-col sm:flex-row sm:items-center gap-3">

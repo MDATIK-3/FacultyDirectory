@@ -9,7 +9,11 @@ import AdminDashboard from './pages/AdminDashboard'
 import ProtectedRoute from './components/ProtectedRoute'
 
 function PublicLayout() {
-  const [darkMode, setDarkMode] = useState(() => localStorage.getItem('darkMode') === 'true')
+  const [darkMode, setDarkMode] = useState(() => {
+    const stored = localStorage.getItem('darkMode')
+    if (stored !== null) return stored === 'true'
+    return window.matchMedia('(prefers-color-scheme: dark)').matches
+  })
   const [activeDept, setActiveDept] = useState('CSE')
   const [query, setQuery] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
@@ -98,7 +102,7 @@ export default function App() {
           path="/admin"
           element={
             <ProtectedRoute session={session}>
-              <AdminDashboard />
+              <AdminDashboard session={session} />
             </ProtectedRoute>
           }
         />

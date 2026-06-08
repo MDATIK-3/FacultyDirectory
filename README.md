@@ -79,6 +79,8 @@ Table: `faculty_members`
 | `status` | text | `active` · `leave_study` · `formal` |
 | `created_at` | timestamptz | Auto-set on insert |
 
+> Two more tables (`profiles`, `faculty_change_requests`) are added by the optional [superadmin approval workflow](#3b-optional-superadmin-approval-workflow) — see `supabase/superadmin_approval.sql`.
+
 ---
 
 ## Getting Started
@@ -140,6 +142,22 @@ CREATE POLICY "auth delete images"  ON storage.objects FOR DELETE USING   (bucke
 ```
 
 Create an admin user under **Authentication → Users** in the Supabase dashboard.
+
+### 3b. (Optional) Superadmin approval workflow
+
+By default every authenticated user can write directly to `faculty_members`. To require a **superadmin** to review and approve every admin's add/edit/delete before it appears on the public site, run [`supabase/superadmin_approval.sql`](supabase/superadmin_approval.sql) in the SQL Editor. It adds:
+
+- A `profiles` table holding each user's `role` (`admin` or `superadmin`, defaulting to `admin` via a trigger on signup)
+- A `faculty_change_requests` table — the approval queue that stores proposed inserts/updates/deletes with their status (`pending` / `approved` / `rejected`)
+- A tightened `faculty_members` write policy so only `superadmin` accounts can write to it directly (enforced at the database level via RLS, not just hidden in the UI)
+
+After running it, promote yourself with:
+
+```sql
+UPDATE profiles SET role = 'superadmin' WHERE email = 'you@example.com';
+```
+
+Plain `admin` accounts then see **"Submit for Approval"** instead of **"Add/Update Member"** in the dashboard, and a **"Pending Approvals"** panel lets superadmins review, approve, or reject each request.
 
 ### 4. Run locally
 
