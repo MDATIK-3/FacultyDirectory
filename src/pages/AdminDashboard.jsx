@@ -240,14 +240,22 @@ export default function AdminDashboard() {
               </div>
               <div>
                 <label className={LABEL_CLASS}>Department</label>
-                <input
+                <select
                   name="department"
                   value={form.department}
                   onChange={handleChange}
                   required
-                  placeholder="Computer Science & Engineering"
-                  className={INPUT_CLASS}
-                />
+                  className={INPUT_CLASS + ' bg-white'}
+                >
+                  <option value="" disabled>
+                    Select a department
+                  </option>
+                  {DEPARTMENTS.map((dept) => (
+                    <option key={dept.dbValue} value={dept.dbValue}>
+                      {dept.full}
+                    </option>
+                  ))}
+                </select>
               </div>
               <div>
                 <label className={LABEL_CLASS}>Designation</label>
