@@ -18,10 +18,10 @@ CREATE POLICY "select_own" ON profiles FOR SELECT USING (id = auth.uid());
 CREATE FUNCTION handle_new_user()
 RETURNS trigger AS $$
 BEGIN
-  INSERT INTO profiles (id, email) VALUES (new.id, new.email);
+  INSERT INTO public.profiles (id, email) VALUES (new.id, new.email);
   RETURN new;
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
 
 CREATE TRIGGER on_auth_user_created
   AFTER INSERT ON auth.users

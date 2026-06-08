@@ -186,7 +186,6 @@ export default function AdminDashboard({ session }) {
         await fetchFaculty()
       } else {
         await submitChangeRequest(editingId ? 'update' : 'insert', editingId, payload)
-        window.alert('Submitted — waiting for superadmin approval. The change will not appear on the public site until approved.')
       }
       setEditingId(null)
       setForm(EMPTY_FORM)
