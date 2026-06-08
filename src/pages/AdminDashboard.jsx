@@ -4,6 +4,7 @@ import { supabase } from '../supabaseClient'
 import { BsSearch } from 'react-icons/bs'
 import DEPARTMENTS from '../constants/departments'
 import ChangeRequestsPanel from '../components/ChangeRequestsPanel'
+import { confirmDialog, notify } from '../lib/alerts'
 
 const STATUS_STYLES = {
   active: 'bg-green-100 text-green-700 ring-1 ring-inset ring-green-200',
@@ -225,14 +226,30 @@ export default function AdminDashboard({ session }) {
 
   async function handleDelete(id, name) {
     if (isSuperadmin) {
-      if (!window.confirm(`Delete "${name}"?\n\nThis action cannot be undone.`)) return
+      const ok = await confirmDialog({
+        title: `Delete "${name}"?`,
+        text: 'This action cannot be undone.',
+        confirmText: 'Delete',
+        icon: 'warning',
+      })
+      if (!ok) return
       await supabase.from('faculty_members').delete().eq('id', id)
       await fetchFaculty()
     } else {
-      if (!window.confirm(`Submit deletion of "${name}" for superadmin approval?`)) return
+      const ok = await confirmDialog({
+        title: 'Submit for approval?',
+        text: `Submitting deletion of "${name}" for superadmin approval. They'll remain visible until it's approved.`,
+        confirmText: 'Submit',
+        icon: 'question',
+      })
+      if (!ok) return
       const member = faculty.find((m) => m.id === id) ?? null
       await submitChangeRequest('delete', id, member)
-      window.alert('Submitted — waiting for superadmin approval. The member will remain visible until approved.')
+      notify({
+        title: 'Submitted for approval',
+        text: 'A superadmin will review this before it goes live.',
+        icon: 'info',
+      })
     }
   }
 

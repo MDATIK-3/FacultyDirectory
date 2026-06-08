@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { supabase } from '../supabaseClient'
+import { promptDialog } from '../lib/alerts'
 
 const ACTION_LABELS = {
   insert: 'New member',
@@ -98,7 +99,12 @@ export default function ChangeRequestsPanel({ role, session, refreshKey, onAppli
   }
 
   async function handleReject(request) {
-    const note = window.prompt('Optional note for the requester (visible to them):', '')
+    const note = await promptDialog({
+      title: 'Reject this request?',
+      text: 'Optional note for the requester — they will see this.',
+      placeholder: 'e.g. Please double-check the contact number',
+      confirmText: 'Reject',
+    })
     if (note === null) return
     setActingId(request.id)
     try {
