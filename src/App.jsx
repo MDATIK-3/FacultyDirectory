@@ -91,16 +91,15 @@ export default function App() {
     return () => subscription.unsubscribe()
   }, [])
 
-  if (session === undefined) return <Spinner />
-
   return (
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<PublicLayout />} />
-        <Route path="/login" element={session ? <Navigate to="/admin" replace /> : <Login />} />
+        <Route path="/login" element={session === undefined ? <Spinner /> : session ? <Navigate to="/admin" replace /> : <Login />} />
         <Route
           path="/admin"
           element={
+            session === undefined ? <Spinner /> :
             <ProtectedRoute session={session}>
               <AdminDashboard session={session} />
             </ProtectedRoute>

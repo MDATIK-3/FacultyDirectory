@@ -1,9 +1,3 @@
--- Superadmin approval workflow for faculty_members CRUD.
--- Run this once in the Supabase SQL Editor (after the base schema in README.md).
-
--- ─────────────────────────────────────────────────────────────
--- 1. profiles — stores each user's role ('admin' or 'superadmin')
--- ─────────────────────────────────────────────────────────────
 CREATE TABLE profiles (
   id         uuid PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
   email      text,
@@ -14,7 +8,6 @@ CREATE TABLE profiles (
 ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "select_own" ON profiles FOR SELECT USING (id = auth.uid());
 
--- Auto-create a profile (defaulting to 'admin') whenever a new account signs up.
 CREATE FUNCTION handle_new_user()
 RETURNS trigger AS $$
 BEGIN
@@ -27,17 +20,10 @@ CREATE TRIGGER on_auth_user_created
   AFTER INSERT ON auth.users
   FOR EACH ROW EXECUTE FUNCTION handle_new_user();
 
--- Backfill profiles for any accounts that already exist.
 INSERT INTO profiles (id, email)
 SELECT id, email FROM auth.users
 ON CONFLICT (id) DO NOTHING;
 
--- Promote yourself to superadmin (run this manually, once, with your own email):
--- UPDATE profiles SET role = 'superadmin' WHERE email = 'you@example.com';
-
--- ─────────────────────────────────────────────────────────────
--- 2. faculty_change_requests — the approval queue
--- ─────────────────────────────────────────────────────────────
 CREATE TABLE faculty_change_requests (
   id                 uuid DEFAULT gen_random_uuid() PRIMARY KEY,
   action             text NOT NULL CHECK (action IN ('insert', 'update', 'delete')),
@@ -69,11 +55,6 @@ CREATE POLICY "update_superadmin_only" ON faculty_change_requests
     EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'superadmin')
   );
 
--- ─────────────────────────────────────────────────────────────
--- 3. Tighten faculty_members so only superadmins can write directly.
---    Regular admins can no longer modify it themselves — every
---    change must flow through faculty_change_requests + approval.
--- ─────────────────────────────────────────────────────────────
 DROP POLICY IF EXISTS "auth_write" ON faculty_members;
 
 CREATE POLICY "superadmin_write" ON faculty_members

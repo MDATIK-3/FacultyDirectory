@@ -49,7 +49,6 @@ export default function Header({ darkMode, onToggleDark, query, onSearch, active
         </div>
       </div>
 
-      {/* Department tabs — centered with glassmorphism */}
       <div className={`${
         darkMode ? 'bg-blue-950/40 border-blue-400/10' : 'bg-white/30 border-white/50'
       } backdrop-blur-md border-b transition-colors duration-300`}>

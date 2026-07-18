@@ -1,4 +1,4 @@
-# Faculty Directory — Green University of Bangladesh
+# Faculty Directory: Green University of Bangladesh
 
 A full-stack faculty directory web application for Green University of Bangladesh, built with React, Vite, Tailwind CSS, and Supabase. Features a public-facing directory with department-wise browsing and a secure admin dashboard for managing faculty records.
 
@@ -7,19 +7,19 @@ A full-stack faculty directory web application for Green University of Banglades
 ## Features
 
 ### Public Directory
-- **Department tabs** — Switch between all GUB departments using short-form codes (ENG, SOC, JMC, BBA, LAW, CSE, EEE, TE)
-- **Live search** — Filter faculty by name, code, designation, email, or phone number
-- **Faculty cards** — Photo, designation, status badge, code, email and phone on every card
-- **Status badges** — Color-coded: Active (green), Study Leave (yellow), Formal (gray)
-- **Pagination** — Smart ellipsis pagination across all department views
-- **Dark / Light mode** — Theme toggle persisted to localStorage
+- **Department tabs**: Switch between all GUB departments using short-form codes (ENG, SOC, JMC, BBA, LAW, CSE, EEE, TE)
+- **Live search**: Filter faculty by name, code, designation, email, or phone number
+- **Faculty cards**: Photo, designation, status badge, code, email and phone on every card
+- **Status badges**: Color-coded: Active (green), Study Leave (yellow), Formal (gray)
+- **Pagination**: Smart ellipsis pagination across all department views
+- **Dark / Light mode**: Theme toggle persisted to localStorage
 
 ### Admin Dashboard
-- **Secure login** — Email and password authentication via Supabase Auth
-- **Protected routes** — Non-authenticated users are redirected to login
-- **Full CRUD** — Add, edit, and delete faculty records
-- **Photo upload** — Drag & drop or click to upload photos directly from device; stored in Supabase Storage
-- **Inline form** — Single form handles both create and update with live image preview
+- **Secure login**: Email and password authentication via Supabase Auth
+- **Protected routes**: Non-authenticated users are redirected to login
+- **Full CRUD**: Add, edit, and delete faculty records
+- **Photo upload**: Drag & drop or click to upload photos directly from device; stored in Supabase Storage
+- **Inline form**: Single form handles both create and update with live image preview
 
 ---
 
@@ -43,21 +43,24 @@ A full-stack faculty directory web application for Green University of Banglades
 ```
 src/
 ├── components/
-│   ├── Header.jsx          # Sticky header with dept tabs, search, theme toggle
-│   ├── Main.jsx            # Faculty grid — filtered, paginated, dark-mode aware
-│   ├── Footer.jsx          # Footer
-│   ├── SearchBar.jsx       # Reusable search input
-│   ├── Pagination.jsx      # Smart ellipsis pagination
-│   └── ProtectedRoute.jsx  # Auth guard for admin routes
+│   ├── ChangeRequestsPanel.jsx
+│   ├── Footer.jsx
+│   ├── Header.jsx
+│   ├── Main.jsx
+│   ├── Pagination.jsx
+│   ├── ProtectedRoute.jsx
+│   └── SearchBar.jsx
 ├── constants/
-│   └── departments.js      # Department definitions (short code → DB value)
+│   └── departments.js
+├── lib/
+│   └── alerts.js
 ├── pages/
-│   ├── Login.jsx           # Admin login page
-│   └── AdminDashboard.jsx  # CRUD dashboard with photo upload
-├── supabaseClient.js       # Supabase client initialisation
-├── App.jsx                 # Router + shared state (theme, dept, search, page)
-├── index.css               # Tailwind directives
-└── main.jsx                # Entry point
+│   ├── AdminDashboard.jsx
+│   └── Login.jsx
+├── supabaseClient.js
+├── App.jsx
+├── index.css
+└── main.jsx
 ```
 
 ---
@@ -75,11 +78,11 @@ Table: `faculty_members`
 | `contact_no` | text | Phone number |
 | `email` | text | Required |
 | `img_src` | text | Supabase Storage public URL |
-| `department` | text | Required — used for dept-tab grouping |
+| `department` | text | Required: used for dept-tab grouping |
 | `status` | text | `active` · `leave_study` · `formal` |
 | `created_at` | timestamptz | Auto-set on insert |
 
-> Two more tables (`profiles`, `faculty_change_requests`) are added by the optional [superadmin approval workflow](#3b-optional-superadmin-approval-workflow) — see `supabase/superadmin_approval.sql`.
+> Two more tables (`profiles`, `faculty_change_requests`) are added by the optional [superadmin approval workflow](#3b-optional-superadmin-approval-workflow): see `supabase/superadmin_approval.sql`.
 
 ---
 
@@ -102,7 +105,7 @@ VITE_SUPABASE_URL=your_supabase_project_url
 VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
 ```
 
-> Use only the **anon/publishable key** here — never the service role key.
+> Use only the **anon/publishable key** here (never the service role key).
 
 ### 3. Set up Supabase
 
@@ -148,7 +151,7 @@ Create an admin user under **Authentication → Users** in the Supabase dashboar
 By default every authenticated user can write directly to `faculty_members`. To require a **superadmin** to review and approve every admin's add/edit/delete before it appears on the public site, run [`supabase/superadmin_approval.sql`](supabase/superadmin_approval.sql) in the SQL Editor. It adds:
 
 - A `profiles` table holding each user's `role` (`admin` or `superadmin`, defaulting to `admin` via a trigger on signup)
-- A `faculty_change_requests` table — the approval queue that stores proposed inserts/updates/deletes with their status (`pending` / `approved` / `rejected`)
+- A `faculty_change_requests` table: the approval queue that stores proposed inserts/updates/deletes with their status (`pending` / `approved` / `rejected`)
 - A tightened `faculty_members` write policy so only `superadmin` accounts can write to it directly (enforced at the database level via RLS, not just hidden in the UI)
 
 After running it, promote yourself with:

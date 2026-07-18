@@ -101,7 +101,7 @@ export default function ChangeRequestsPanel({ role, session, refreshKey, onAppli
   async function handleReject(request) {
     const note = await promptDialog({
       title: 'Reject this request?',
-      text: 'Optional note for the requester — they will see this.',
+      text: 'Optional note for the requester - they will see this.',
       placeholder: 'e.g. Please double-check the contact number',
       confirmText: 'Reject',
     })
