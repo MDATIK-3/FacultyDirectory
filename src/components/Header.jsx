@@ -54,7 +54,6 @@ export default function Header({ darkMode, onToggleDark, query, onSearch, active
 
   return (
     <header className="sticky top-0 z-20 shadow-lg">
-      {/* ── Top Bar (logo + search + toggle) ── */}
       <AnimatePresence initial={false}>
         {topBarVisible && (
           <motion.div
@@ -97,12 +96,45 @@ export default function Header({ darkMode, onToggleDark, query, onSearch, active
         )}
       </AnimatePresence>
 
-      {/* ── Dept Tabs (always visible) ── */}
-      <div className={`${
-        darkMode ? 'bg-blue-950/40 border-blue-400/10' : 'bg-white/30 border-white/50'
-      } backdrop-blur-md border-b transition-colors duration-300`}>
+      <div className={`${darkMode ? 'bg-blue-950/40 border-blue-400/10' : 'bg-white/30 border-white/50'
+        } backdrop-blur-md border-b transition-colors duration-300`}>
 
-
+        {/* Collapsed state: show a subtle hint pill when top bar is hidden */}
+        <AnimatePresence initial={false}>
+          {!topBarVisible && (
+            <motion.div
+              key="hint"
+              initial={{ opacity: 0, y: -4 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -4 }}
+              transition={{ duration: 0.2 }}
+              className="flex items-center justify-between px-4 sm:px-6 pt-1.5 pb-0"
+            >
+              <span className={`text-[10px] font-semibold tracking-widest uppercase ${darkMode ? 'text-blue-400/60' : 'text-green-800/40'
+                }`}>
+                GUB Faculty
+              </span>
+              <div className="flex items-center gap-2">
+                {/* Inline mini search on mobile when bar is hidden */}
+                <div className="sm:hidden">
+                  <SearchBar query={query} handleSearch={onSearch} darkMode={darkMode} compact />
+                </div>
+                <motion.button
+                  onClick={onToggleDark}
+                  className={`p-1.5 rounded-full text-xs ${darkMode
+                    ? 'text-blue-300/70 hover:text-blue-200 hover:bg-white/10'
+                    : 'text-green-800/60 hover:text-green-900 hover:bg-black/5'
+                    } transition-colors`}
+                  whileHover={{ rotate: 360 }}
+                  transition={{ duration: 0.4 }}
+                  title={darkMode ? 'Switch to light mode' : 'Switch to dark mode'}
+                >
+                  {darkMode ? <BsSun size={13} /> : <BsMoon size={13} />}
+                </motion.button>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         <div
           ref={tabsScrollRef}
@@ -116,13 +148,12 @@ export default function Header({ darkMode, onToggleDark, query, onSearch, active
                   key={dept.short}
                   onClick={() => onDeptChange(dept.short)}
                   title={dept.full}
-                  className={`flex-shrink-0 px-3.5 py-2 text-xs font-bold rounded-md transition-all duration-200 cursor-pointer ${
-                    isActive
-                      ? 'bg-green-700/90 text-white shadow-sm'
-                      : darkMode
+                  className={`flex-shrink-0 px-3.5 py-2 text-xs font-bold rounded-md transition-all duration-200 cursor-pointer ${isActive
+                    ? 'bg-green-700/90 text-white shadow-sm'
+                    : darkMode
                       ? 'text-gray-300 hover:text-white hover:bg-white/10'
                       : 'text-green-900/70 hover:text-green-900 hover:bg-white/60'
-                  }`}
+                    }`}
                 >
                   {dept.short}
                 </button>
