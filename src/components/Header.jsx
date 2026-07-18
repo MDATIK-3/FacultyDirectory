@@ -1,12 +1,16 @@
-import { useRef, useEffect } from 'react'
-import { motion } from 'framer-motion'
+import { useRef, useEffect, useState } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 import { BsMoon, BsSun } from 'react-icons/bs'
 import SearchBar from './SearchBar'
 import DEPARTMENTS from '../constants/departments'
 
 export default function Header({ darkMode, onToggleDark, query, onSearch, activeDept, onDeptChange }) {
   const tabsScrollRef = useRef(null)
+  const [topBarVisible, setTopBarVisible] = useState(true)
+  const lastScrollY = useRef(0)
+  const ticking = useRef(false)
 
+  // Horizontal scroll via mouse wheel on dept tabs
   useEffect(() => {
     const el = tabsScrollRef.current
     if (!el) return
@@ -19,39 +23,87 @@ export default function Header({ darkMode, onToggleDark, query, onSearch, active
     return () => el.removeEventListener('wheel', onWheel)
   }, [])
 
+  // Smart scroll: hide top bar on scroll-down, show on scroll-up
+  useEffect(() => {
+    const onScroll = () => {
+      if (ticking.current) return
+      ticking.current = true
+      requestAnimationFrame(() => {
+        const currentY = window.scrollY
+        const delta = currentY - lastScrollY.current
+
+        if (currentY < 20) {
+          // Always show at top of page
+          setTopBarVisible(true)
+        } else if (delta > 6) {
+          // Scrolling down
+          setTopBarVisible(false)
+        } else if (delta < -6) {
+          // Scrolling up
+          setTopBarVisible(true)
+        }
+
+        lastScrollY.current = currentY
+        ticking.current = false
+      })
+    }
+
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [])
+
   return (
     <header className="sticky top-0 z-20 shadow-lg">
-      <div className={darkMode ? 'header-bg-dark' : 'header-bg-light'}>
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3">
-          <div className="flex items-center justify-between gap-3">
-            <h1 className="text-base sm:text-xl font-bold text-white tracking-tight shrink-0">
-              GUB Faculty Directory
-            </h1>
-            <div className="flex items-center gap-2 sm:gap-3">
-              <div className="hidden sm:block w-48 md:w-64">
-                <SearchBar query={query} handleSearch={onSearch} darkMode={darkMode} />
+      {/* ── Top Bar (logo + search + toggle) ── */}
+      <AnimatePresence initial={false}>
+        {topBarVisible && (
+          <motion.div
+            key="topbar"
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.28, ease: 'easeInOut' }}
+            style={{ overflow: 'hidden' }}
+          >
+            <div className={darkMode ? 'header-bg-dark' : 'header-bg-light'}>
+              <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3">
+                <div className="flex items-center justify-between gap-3">
+                  <h1 className="text-base sm:text-xl font-bold text-white tracking-tight shrink-0">
+                    GUB Faculty Directory
+                  </h1>
+                  <div className="flex items-center gap-2 sm:gap-3">
+                    <div className="hidden sm:block w-48 md:w-64">
+                      <SearchBar query={query} handleSearch={onSearch} darkMode={darkMode} />
+                    </div>
+                    <motion.button
+                      onClick={onToggleDark}
+                      className="p-2.5 rounded-full flex-shrink-0 bg-white/15 hover:bg-white/25 text-white transition-colors"
+                      whileHover={{ rotate: 360 }}
+                      transition={{ duration: 0.4 }}
+                      title={darkMode ? 'Switch to light mode' : 'Switch to dark mode'}
+                    >
+                      {darkMode ? <BsSun size={17} /> : <BsMoon size={17} />}
+                    </motion.button>
+                  </div>
+                </div>
+
+                {/* Mobile search */}
+                <div className="sm:hidden mt-2.5">
+                  <SearchBar query={query} handleSearch={onSearch} darkMode={darkMode} />
+                </div>
               </div>
-              <motion.button
-                onClick={onToggleDark}
-                className="p-2.5 rounded-full flex-shrink-0 bg-white/15 hover:bg-white/25 text-white transition-colors"
-                whileHover={{ rotate: 360 }}
-                transition={{ duration: 0.4 }}
-                title={darkMode ? 'Switch to light mode' : 'Switch to dark mode'}
-              >
-                {darkMode ? <BsSun size={17} /> : <BsMoon size={17} />}
-              </motion.button>
             </div>
-          </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-          <div className="sm:hidden mt-2.5">
-            <SearchBar query={query} handleSearch={onSearch} darkMode={darkMode} />
-          </div>
-        </div>
-      </div>
-
+      {/* ── Dept Tabs (always visible) ── */}
       <div className={`${
         darkMode ? 'bg-blue-950/40 border-blue-400/10' : 'bg-white/30 border-white/50'
       } backdrop-blur-md border-b transition-colors duration-300`}>
+
+
+
         <div
           ref={tabsScrollRef}
           className="overflow-x-auto scrollbar-hide cursor-ew-resize"

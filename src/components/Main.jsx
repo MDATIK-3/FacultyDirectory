@@ -202,7 +202,13 @@ export default function Main({ darkMode, activeDept, query, currentPage, onPageC
       .abortSignal(controller.signal)
       .then(({ data, error: fetchError }) => {
         if (fetchError) {
-          if (fetchError.name !== 'AbortError') setError(fetchError.message)
+          // Supabase may wrap abort errors differently — check name AND message
+          const isAbort =
+            fetchError.name === 'AbortError' ||
+            fetchError.code === '20' ||
+            fetchError.message?.toLowerCase().includes('abort') ||
+            fetchError.message?.toLowerCase().includes('aborted')
+          if (!isAbort) setError(fetchError.message)
         } else {
           const result = data || []
           setAllFaculty(result)
@@ -213,7 +219,11 @@ export default function Main({ darkMode, activeDept, query, currentPage, onPageC
         setLoading(false)
       })
 
-    return () => controller.abort()
+    return () => {
+      // Reset so StrictMode's second mount can re-fetch after the first is aborted
+      fetchedRef.current = false
+      controller.abort()
+    }
   }, [])
 
   const activeDeptObj = DEPARTMENTS.find((d) => d.short === activeDept)
