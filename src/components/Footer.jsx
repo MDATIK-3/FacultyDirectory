@@ -38,20 +38,28 @@ export default function Footer({ darkMode }) {
           © {new Date().getFullYear()} Telepathy. All rights reserved.
         </p>
         {allContributors.length > 0 && (
-          <div className="flex items-center -space-x-2">
+          <div className="flex items-center gap-2">
             {allContributors.map((c) => (
               <a
                 key={c.id}
                 href={c.html_url}
                 target="_blank"
                 rel="noreferrer"
-                title={c.login}
-                className="hover:opacity-80 hover:scale-110 transition-all hover:z-10 relative"
+                className="group relative flex flex-col items-center"
               >
+                {/* Custom tooltip */}
+                <span className="absolute -top-8 left-1/2 -translate-x-1/2 whitespace-nowrap
+                  text-xs font-semibold px-2 py-0.5 rounded-md pointer-events-none
+                  opacity-0 group-hover:opacity-100 translate-y-1 group-hover:translate-y-0
+                  transition-all duration-200
+                  bg-white/90 text-gray-800 shadow-md">
+                  {c.login}
+                </span>
                 <img
                   src={c.avatar_url}
                   alt={c.login}
-                  className="w-6 h-6 rounded-full border-2 border-white/50 object-cover"
+                  className="w-7 h-7 rounded-full border-2 border-white/60 object-cover
+                    hover:scale-110 transition-transform duration-200 shadow-sm"
                 />
               </a>
             ))}
