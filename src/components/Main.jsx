@@ -202,7 +202,6 @@ export default function Main({ darkMode, activeDept, query, currentPage, onPageC
       .abortSignal(controller.signal)
       .then(({ data, error: fetchError }) => {
         if (fetchError) {
-          // Supabase may wrap abort errors differently — check name AND message
           const isAbort =
             fetchError.name === 'AbortError' ||
             fetchError.code === '20' ||
