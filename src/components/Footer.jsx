@@ -1,7 +1,5 @@
 import { useEffect, useState } from 'react'
 
-const REPO_URL = 'https://github.com/MDATIK-3/FacultyDirectory'
-
 export default function Footer({ darkMode }) {
   const [contributors, setContributors] = useState([])
 
@@ -18,6 +16,17 @@ export default function Footer({ darkMode }) {
     }
   }, [])
 
+  const extraContributors = [
+    {
+      id: 'salman-230',
+      login: 'Salman-230',
+      html_url: 'https://github.com/Salman-230',
+      avatar_url: 'https://avatars.githubusercontent.com/u/225510961?v=4',
+    },
+  ]
+
+  const allContributors = [...contributors, ...extraContributors]
+
   return (
     <footer className={`py-5 mt-auto backdrop-blur-sm border-t transition-colors duration-300 ${
       darkMode
@@ -28,23 +37,25 @@ export default function Footer({ darkMode }) {
         <p className="shimmer-text font-medium">
           © {new Date().getFullYear()} Telepathy. All rights reserved.
         </p>
-        {contributors.length > 0 && (
-          <a
-            href={REPO_URL}
-            target="_blank"
-            rel="noreferrer"
-            title="View contributors on GitHub"
-            className="flex items-center -space-x-2 hover:opacity-80 transition-opacity"
-          >
-            {contributors.map((c) => (
-              <img
+        {allContributors.length > 0 && (
+          <div className="flex items-center -space-x-2">
+            {allContributors.map((c) => (
+              <a
                 key={c.id}
-                src={c.avatar_url}
-                alt={c.login}
-                className="w-6 h-6 rounded-full border-2 border-white/50 object-cover"
-              />
+                href={c.html_url}
+                target="_blank"
+                rel="noreferrer"
+                title={c.login}
+                className="hover:opacity-80 hover:scale-110 transition-all hover:z-10 relative"
+              >
+                <img
+                  src={c.avatar_url}
+                  alt={c.login}
+                  className="w-6 h-6 rounded-full border-2 border-white/50 object-cover"
+                />
+              </a>
             ))}
-          </a>
+          </div>
         )}
       </div>
     </footer>
